@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok Video Downloader</title>
+    <title>TikTok Video Downloader (DEBUG MODE)</title>
     <style>
         body { font-family: sans-serif; max-width: 700px; margin: 40px auto; padding: 25px; background-color: #f7f9fc; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
         h1 { color: #1e2022; text-align: center; }
@@ -30,7 +30,9 @@
     </div>
 
     <script>
-        const BACKEND_URL = "https://tiktok-downloader-backend-nu.vercel.app/download"; // <-- PASTIKAN INI URL VERCEL ANDA
+        alert('TES 1: Skrip JavaScript mulai berjalan.');
+
+        const BACKEND_URL = "https://tiktok-downloader-backend-nu.vercel.app/download"; 
 
         const urlInput = document.getElementById('tiktokUrlInput');
         const downloadBtn = document.getElementById('downloadButton');
@@ -39,50 +41,28 @@
         const videoTitle = document.getElementById('videoTitle');
         const downloadLink = document.getElementById('downloadLink');
 
-        downloadBtn.addEventListener('click', async () => {
-            const tiktokUrl = urlInput.value;
-            if (!tiktokUrl || !tiktokUrl.includes('tiktok.com')) {
-                alert('Masukkan URL TikTok yang valid.');
-                return;
-            }
+        alert('TES 2: Mencari tombol... Hasilnya adalah: ' + downloadBtn);
 
-            loadingDiv.style.display = 'block';
-            downloadBtn.disabled = true;
-            resultContainer.style.display = 'none';
+        if (downloadBtn) {
+            alert('TES 3: Tombol ditemukan! Event listener akan ditambahkan.');
 
-            try {
-                const response = await fetch(BACKEND_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: tiktokUrl })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Server merespon dengan error: ${response.status}`);
-                }
+            downloadBtn.addEventListener('click', async () => {
+                alert('TES 4: Tombol Download DIKLIK! Memulai proses fetch...');
                 
-                const data = await response.json();
-
-                // --- BAGIAN YANG DIPERBAIKI ---
-                if (data.play) { // Cek jika kunci "play" ada
-                    const noWatermarkUrl = data.play; // Langsung ambil URL-nya
-                    
-                    videoTitle.textContent = 'Video siap diunduh!'; // Tampilkan pesan
-                    downloadLink.href = noWatermarkUrl; // Atur link download
-                    resultContainer.style.display = 'block'; // Tampilkan hasilnya
-                } else {
-                    // Jika kunci "play" tidak ditemukan dalam respons
-                    throw new Error("Respons API tidak berisi URL video ('play').");
+                const tiktokUrl = urlInput.value;
+                if (!tiktokUrl) {
+                    alert('URL kosong.');
+                    return;
                 }
-                // --- AKHIR BAGIAN YANG DIPERBAIKI ---
 
-            } catch (error) {
-                alert('Terjadi kesalahan: ' + error.message);
-            } finally {
-                loadingDiv.style.display = 'none';
-                downloadBtn.disabled = false;
-            }
-        });
+                loadingDiv.style.display = 'block';
+                downloadBtn.disabled = true;
+
+                // ... sisa kode fetch ...
+            });
+        } else {
+            alert('!!! ERROR: Tombol dengan ID "downloadButton" TIDAK DITEMUKAN. Periksa kembali tag <button> di HTML.');
+        }
     </script>
 </body>
 </html>
