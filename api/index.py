@@ -7,27 +7,28 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-# Fungsi untuk memanggil API TikTok Downloader yang baru
+def resolve_short_url(url):
+    """
+    Mengikuti redirect dari URL singkat untuk mendapatkan URL lengkap.
+    """
+    try:
+        # Menggunakan HEAD request agar lebih cepat, karena kita hanya butuh URL final
+        response = requests.head(url, allow_redirects=True, timeout=5)
+        response.raise_for_status()
+        return response.url  # Mengembalikan URL final setelah semua redirect
+    except requests.exceptions.RequestException as e:
+        print(f"Gagal me-resolve URL singkat: {e}")
+        return None
+
 def get_video_from_tiktok_api(tiktok_url, api_key):
-    # Informasi ini diambil dari kode baru Anda
     api_url = "https://tiktok-max-quality.p.rapidapi.com/download/"
     api_host = "tiktok-max-quality.p.rapidapi.com"
-
-    # Menyusun headers dengan kunci API
-    headers = {
-        "x-rapidapi-key": api_key,
-        "x-rapidapi-host": api_host
-    }
-
-    # Menyusun parameter
-    params = {
-        "url": tiktok_url
-    }
+    headers = { "x-rapidapi-key": api_key, "x-rapidapi-host": api_host }
+    params = { "url": tiktok_url }
 
     try:
-        # Melakukan permintaan GET ke API
         response = requests.get(api_url, headers=headers, params=params)
-        response.raise_for_status()  # Cek jika ada error HTTP
+        response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
         print(f"Error saat menghubungi API: {e}")
@@ -40,19 +41,27 @@ def handle_download_request():
     if not req_data or 'url' not in req_data:
         return jsonify({"error": "URL TikTok tidak ditemukan dalam permintaan"}), 400
     
-    tiktok_url_to_download = req_data['url']
+    short_url = req_data['url']
 
-    # Mengambil kunci API dari Environment Variable di Vercel
+    # --- LANGKAH BARU DITAMBAHKAN DI SINI ---
+    print(f"Menerima URL: {short_url}")
+    print("Me-resolve URL lengkap...")
+    full_url = resolve_short_url(short_url)
+    
+    if not full_url:
+        return jsonify({"error": "Gagal mendapatkan URL lengkap dari link yang diberikan"}), 400
+    
+    print(f"URL lengkap ditemukan: {full_url}")
+    # --- AKHIR LANGKAH BARU ---
+
     my_api_key = os.environ.get('TIKTOK_API_KEY')
     if not my_api_key:
         return jsonify({"error": "Kunci API server tidak diatur"}), 500
 
-    # Memanggil fungsi untuk mendapatkan data video
-    video_data = get_video_from_tiktok_api(tiktok_url_to_download, my_api_key)
+    # Memanggil API downloader dengan URL yang sudah lengkap
+    video_data = get_video_from_tiktok_api(full_url, my_api_key)
 
     if video_data:
-        # Jika berhasil, kirim kembali data video ke front-end
         return jsonify(video_data)
     else:
-        # Jika gagal, kirim pesan error
         return jsonify({"error": "Gagal mengambil data dari layanan API downloader"}), 502
