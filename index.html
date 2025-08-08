@@ -30,6 +30,7 @@
     <div id="result-container">
         <p id="videoTitle"></p>
         <a href="#" id="downloadLink" class="download-button" target="_blank" rel="noopener noreferrer" download="tiktok_video.mp4">Download Video Tanpa Watermark</a>
+    </div>
 
     <script>
         // Ganti dengan URL Vercel Anda yang sebenarnya
@@ -44,7 +45,7 @@
         const downloadLink = document.getElementById('downloadLink');
 
         downloadForm.addEventListener('submit', async (event) => {
-            event.preventDefault(); // Mencegah form dari me-refresh halaman
+            event.preventDefault();
             
             const tiktokUrl = urlInput.value;
             
@@ -52,7 +53,6 @@
             downloadBtn.disabled = true;
             resultContainer.style.display = 'none';
 
-            // Struktur try...catch...finally yang LENGKAP dan BENAR
             try {
                 const response = await fetch(BACKEND_URL, {
                     method: 'POST',
@@ -61,14 +61,13 @@
                 });
 
                 if (!response.ok) {
-                    // Mengambil pesan error dari backend jika ada
                     const errorData = await response.json().catch(() => ({ error: `Server merespon dengan status: ${response.status}` }));
                     throw new Error(errorData.error || `Server error: ${response.status}`);
                 }
                 
                 const data = await response.json();
 
-                if (data.play) { // Cek jika kunci "play" ada
+                if (data.play) {
                     const noWatermarkUrl = data.play;
                     
                     videoTitle.textContent = 'Video berhasil ditemukan!';
@@ -79,10 +78,8 @@
                 }
 
             } catch (error) {
-                // Ini adalah blok 'catch' yang hilang sebelumnya
                 alert('Terjadi kesalahan: ' + error.message);
             } finally {
-                // Ini adalah blok 'finally'
                 loadingDiv.style.display = 'none';
                 downloadBtn.disabled = false;
             }
