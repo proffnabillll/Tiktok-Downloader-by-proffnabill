@@ -57,22 +57,18 @@
                     body: JSON.stringify({ url: tiktokUrl })
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Server merespon dengan error: ${response.status}`);
-                }
+                if (data.play) { // <-- Cukup periksa apakah kunci "play" ada
+    const noWatermarkUrl = data.play; // <-- Langsung ambil URL-nya
 
-                const data = await response.json();
+    // Karena API baru tidak memberikan judul, kita tampilkan pesan saja
+    videoTitle.textContent = 'Video siap diunduh!'; 
 
-                if (data.aweme_list && data.aweme_list.length > 0) {
-                    const videoData = data.aweme_list[0];
-                    const noWatermarkUrl = videoData.video.play_addr.url_list[0];
-                    const title = videoData.desc;
-                    
-                    videoTitle.textContent = `Judul: ${title}`;
-                    downloadLink.href = noWatermarkUrl;
-                    resultContainer.style.display = 'block';
-                } else {
-                    throw new Error("Struktur respons dari API tidak sesuai.");
+    downloadLink.href = noWatermarkUrl;
+    resultContainer.style.display = 'block';
+} else {
+    // Jika kunci "play" tidak ditemukan
+    throw new Error("Respons API tidak berisi URL video ('play').");
+}
                 }
 
             } catch (error) {
