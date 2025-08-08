@@ -30,7 +30,7 @@
     </div>
 
     <script>
-        const BACKEND_URL = "https://tiktok-downloader-by-proffnabill.vercel.app/download"; // <-- GANTI DENGAN URL ANDA
+        const BACKEND_URL = "https://tiktok-downloader-backend-nu.vercel.app/download"; // <-- PASTIKAN INI URL VERCEL ANDA
 
         const urlInput = document.getElementById('tiktokUrlInput');
         const downloadBtn = document.getElementById('downloadButton');
@@ -57,19 +57,24 @@
                     body: JSON.stringify({ url: tiktokUrl })
                 });
 
-                if (data.play) { // <-- Cukup periksa apakah kunci "play" ada
-    const noWatermarkUrl = data.play; // <-- Langsung ambil URL-nya
-
-    // Karena API baru tidak memberikan judul, kita tampilkan pesan saja
-    videoTitle.textContent = 'Video siap diunduh!'; 
-
-    downloadLink.href = noWatermarkUrl;
-    resultContainer.style.display = 'block';
-} else {
-    // Jika kunci "play" tidak ditemukan
-    throw new Error("Respons API tidak berisi URL video ('play').");
-}
+                if (!response.ok) {
+                    throw new Error(`Server merespon dengan error: ${response.status}`);
                 }
+                
+                const data = await response.json();
+
+                // --- BAGIAN YANG DIPERBAIKI ---
+                if (data.play) { // Cek jika kunci "play" ada
+                    const noWatermarkUrl = data.play; // Langsung ambil URL-nya
+                    
+                    videoTitle.textContent = 'Video siap diunduh!'; // Tampilkan pesan
+                    downloadLink.href = noWatermarkUrl; // Atur link download
+                    resultContainer.style.display = 'block'; // Tampilkan hasilnya
+                } else {
+                    // Jika kunci "play" tidak ditemukan dalam respons
+                    throw new Error("Respons API tidak berisi URL video ('play').");
+                }
+                // --- AKHIR BAGIAN YANG DIPERBAIKI ---
 
             } catch (error) {
                 alert('Terjadi kesalahan: ' + error.message);
