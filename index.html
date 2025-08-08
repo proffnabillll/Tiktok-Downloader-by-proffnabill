@@ -67,8 +67,10 @@
                 
                 const data = await response.json();
 
-                if (data.play) {
-                    const noWatermarkUrl = data.play;
+                if (data.no_watermark_link) { // <-- Sesuaikan dengan nama kunci yang baru
+    const noWatermarkUrl = data.no_watermark_link; // <-- Sesuaikan juga di sini
+    // ...
+}
                     
                     videoTitle.textContent = 'Video berhasil ditemukan!';
                     downloadLink.href = noWatermarkUrl;
