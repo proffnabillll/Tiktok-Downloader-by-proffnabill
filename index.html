@@ -78,7 +78,9 @@
                 videoTitle.textContent = 'Video berhasil ditemukan!';
                 downloadLink.href = noWatermarkUrl;
                 resultContainer.style.display = 'block';
-            } else {
+            } 
+        
+        else {
                 throw new Error("Struktur respons API tidak sesuai atau tidak berisi URL video.");
             }
 
