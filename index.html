@@ -70,8 +70,10 @@
             const data = await response.json();
 
             // Sesuaikan 'data.play' jika API Anda menggunakan kunci yang berbeda
-            if (data.play) { 
-                const noWatermarkUrl = data.play;
+            if (data.download_url) { // <-- Diubah sesuai kunci baru
+    const noWatermarkUrl = data.download_url; // <-- Diubah juga di sini
+    // ...
+}
                 
                 videoTitle.textContent = 'Video berhasil ditemukan!';
                 downloadLink.href = noWatermarkUrl;
