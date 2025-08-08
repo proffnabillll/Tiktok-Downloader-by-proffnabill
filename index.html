@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Video Downloader</title>
+    <style>
+        body { font-family: sans-serif; max-width: 700px; margin: 40px auto; padding: 25px; background-color: #f7f9fc; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        h1 { color: #1e2022; text-align: center; }
+        input[type="text"] { width: calc(100% - 24px); padding: 12px; font-size: 16px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 15px; }
+        button { width: 100%; padding: 12px; font-size: 16px; background-color: #252525; color: white; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.2s; }
+        button:hover { background-color: #555; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        #result-container { margin-top: 25px; padding: 20px; background-color: #fff; border-radius: 5px; display: none; }
+        a.download-button { display: block; text-align: center; padding: 12px; margin-top: 15px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; }
+        #loading { display: none; margin-top: 20px; }
+        .spinner { border: 6px solid #f3f3f3; border-top: 6px solid #252525; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <h1>TikTok Video Downloader</h1>
+    <input type="text" id="tiktokUrlInput" placeholder="Tempel URL video TikTok di sini...">
+    <button id="downloadButton">Download Video</button>
+
+    <div id="loading"><div class="spinner"></div></div>
+    <div id="result-container">
+        <p id="videoTitle"></p>
+        <a href="#" id="downloadLink" class="download-button" target="_blank">Download Video Tanpa Watermark</a>
+    </div>
+
+    <script>
+        const BACKEND_URL = "https://URL_BACKEND_VERCEL_ANDA/download"; // <-- GANTI DENGAN URL ANDA
+
+        const urlInput = document.getElementById('tiktokUrlInput');
+        const downloadBtn = document.getElementById('downloadButton');
+        const loadingDiv = document.getElementById('loading');
+        const resultContainer = document.getElementById('result-container');
+        const videoTitle = document.getElementById('videoTitle');
+        const downloadLink = document.getElementById('downloadLink');
+
+        downloadBtn.addEventListener('click', async () => {
+            const tiktokUrl = urlInput.value;
+            if (!tiktokUrl || !tiktokUrl.includes('tiktok.com')) {
+                alert('Masukkan URL TikTok yang valid.');
+                return;
+            }
+
+            loadingDiv.style.display = 'block';
+            downloadBtn.disabled = true;
+            resultContainer.style.display = 'none';
+
+            try {
+                const response = await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: tiktokUrl })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server merespon dengan error: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.aweme_list && data.aweme_list.length > 0) {
+                    const videoData = data.aweme_list[0];
+                    const noWatermarkUrl = videoData.video.play_addr.url_list[0];
+                    const title = videoData.desc;
+                    
+                    videoTitle.textContent = `Judul: ${title}`;
+                    downloadLink.href = noWatermarkUrl;
+                    resultContainer.style.display = 'block';
+                } else {
+                    throw new Error("Struktur respons dari API tidak sesuai.");
+                }
+
+            } catch (error) {
+                alert('Terjadi kesalahan: ' + error.message);
+            } finally {
+                loadingDiv.style.display = 'none';
+                downloadBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
