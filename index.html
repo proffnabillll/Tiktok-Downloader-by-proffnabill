@@ -32,60 +32,61 @@
         <a href="#" id="downloadLink" class="download-button" target="_blank" rel="noopener noreferrer" download="tiktok_video.mp4">Download Video Tanpa Watermark</a>
     </div>
 
-    <script>
-        // Ganti dengan URL Vercel Anda yang sebenarnya
-        const BACKEND_URL = "https://tiktok-downloader-by-proffnabill.vercel.app/download";
+   <script>
+    // Ganti dengan URL Vercel Anda yang sebenarnya
+    const BACKEND_URL = "https://tiktok-downloader-by-proffnabill.vercel.app/download";
 
-        const downloadForm = document.getElementById('downloadForm');
-        const urlInput = document.getElementById('tiktokUrlInput');
-        const downloadBtn = document.getElementById('downloadButton');
-        const loadingDiv = document.getElementById('loading');
-        const resultContainer = document.getElementById('result-container');
-        const videoTitle = document.getElementById('videoTitle');
-        const downloadLink = document.getElementById('downloadLink');
+    const downloadForm = document.getElementById('downloadForm');
+    const urlInput = document.getElementById('tiktokUrlInput');
+    const downloadBtn = document.getElementById('downloadButton');
+    const loadingDiv = document.getElementById('loading');
+    const resultContainer = document.getElementById('result-container');
+    const videoTitle = document.getElementById('videoTitle');
+    const downloadLink = document.getElementById('downloadLink');
 
-        downloadForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            
-            const tiktokUrl = urlInput.value;
-            
-            loadingDiv.style.display = 'block';
-            downloadBtn.disabled = true;
-            resultContainer.style.display = 'none';
+    // Dengarkan event 'submit' pada FORM, bukan 'click' pada tombol
+    downloadForm.addEventListener('submit', async (event) => {
+        // Baris ini adalah kunci untuk mencegah halaman me-refresh
+        event.preventDefault(); 
+        
+        const tiktokUrl = urlInput.value;
+        
+        loadingDiv.style.display = 'block';
+        downloadBtn.disabled = true;
+        resultContainer.style.display = 'none';
 
-            try {
-                const response = await fetch(BACKEND_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: tiktokUrl })
-                });
+        try {
+            const response = await fetch(BACKEND_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: tiktokUrl })
+            });
 
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({ error: `Server merespon dengan status: ${response.status}` }));
-                    throw new Error(errorData.error || `Server error: ${response.status}`);
-                }
-                
-                const data = await response.json();
-
-                if (data.no_watermark_link) { // <-- Sesuaikan dengan nama kunci yang baru
-    const noWatermarkUrl = data.no_watermark_link; // <-- Sesuaikan juga di sini
-    // ...
-}
-                    
-                    videoTitle.textContent = 'Video berhasil ditemukan!';
-                    downloadLink.href = noWatermarkUrl;
-                    resultContainer.style.display = 'block';
-                } else {
-                    throw new Error("Respons dari API tidak berisi URL video ('play').");
-                }
-
-            } catch (error) {
-                alert('Terjadi kesalahan: ' + error.message);
-            } finally {
-                loadingDiv.style.display = 'none';
-                downloadBtn.disabled = false;
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: `Server merespon dengan status: ${response.status}` }));
+                throw new Error(errorData.error || `Server error: ${response.status}`);
             }
-        });
-    </script>
+            
+            const data = await response.json();
+
+            // Sesuaikan 'data.play' jika API Anda menggunakan kunci yang berbeda
+            if (data.play) { 
+                const noWatermarkUrl = data.play;
+                
+                videoTitle.textContent = 'Video berhasil ditemukan!';
+                downloadLink.href = noWatermarkUrl;
+                resultContainer.style.display = 'block';
+            } else {
+                throw new Error("Struktur respons API tidak sesuai atau tidak berisi URL video.");
+            }
+
+        } catch (error) {
+            alert('Terjadi kesalahan: ' + error.message);
+        } finally {
+            loadingDiv.style.display = 'none';
+            downloadBtn.disabled = false;
+        }
+    });
+</script>
 </body>
 </html>
